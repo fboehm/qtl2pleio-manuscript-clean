@@ -1,0 +1,284 @@
+---
+title: 'Recla analysis: Updated figures'
+author: "Frederick Boehm"
+date: "`r lubridate::now()`"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Read pvl scan results from files
+
+```{r load_results}
+library(dplyr)
+library(ggplot2)
+as_tibble(read.table("recla-07-10.txt")) -> pvl0710
+as_tibble(read.table("recla-07-22.txt")) -> pvl0722
+as_tibble(read.table("recla-10-22.txt")) -> pvl1022
+```
+
+## Load Recla from qtl2data
+
+```{r load_data}
+library(qtl2)
+library(broman) # used for ggplot2 theme
+file <- paste0("https://raw.githubusercontent.com/rqtl/",
+               "qtl2data/master/DO_Recla/recla.zip")
+recla <- read_cross2(file)
+# make sex a covariate for use in qtl2pleio::scan_pvl
+recla[[6]][ , 1, drop = FALSE] -> sex
+# insert pseudomarkers
+insert_pseudomarkers(recla, step = 0.10) -> pseudomap
+gm <- pseudomap$`8`
+
+```
+
+We calculate genotype probabilities and convert them to haplotype dosages.
+
+```{r, calc_genoprob, eval=FALSE}
+probs <- calc_genoprob(recla, map = pseudomap, cores=0)
+aprobs <- genoprob_to_alleleprob(probs, cores=0)
+```
+
+```{r calc_genoprob_really, echo=FALSE}
+dir <- "_cache"
+if(!dir.exists(dir)) dir.create(dir)
+file <- file.path(dir, "aprobs.rds")
+if(file.exists(file)) {
+    aprobs <- readRDS(file)
+} else {
+<<calc_genoprob>>
+    saveRDS(aprobs, file)
+}
+```
+
+
+We now calculate kinship matrices, by the "leave one chromosome out (loco)" method.
+
+```{r calc_kinship}
+kinship <- calc_kinship(aprobs, "loco", cores=0)
+```
+
+
+```{r winsorize_phenotype}
+recla$pheno -> ph
+log(ph) -> lph
+apply(FUN = broman::winsorize, X = lph, MARGIN = 2) -> wlph
+#colnames(wlph)[c(7, 10, 22)] <- c("distance traveled in light", "percent time in light", "hot plate latency")
+
+as_tibble(wlph) -> wlph_tib
+```
+
+```{r genome_scan, eval = TRUE}
+sex2 <- matrix(as.numeric(sex == "female"), ncol = 1)
+colnames(sex2) <- "female"
+rownames(sex2) <- rownames(aprobs[[1]])
+file <- "scan1.rds"
+if(file.exists(file)) {
+    out <- readRDS(file)
+} else {
+    out <- scan1(genoprobs = aprobs, pheno = wlph, kinship = kinship, addcovar = sex2, reml = TRUE, cores=0)
+    saveRDS(out, "scan1.rds") # save scan1 results in case we want to tweak figures
+}
+```
+
+
+```{r find_peaks, eval = TRUE}
+(peaks <- find_peaks(out, pseudomap, threshold = 5) %>%
+  arrange(chr, pos) %>%
+   select(- lodindex))
+peaks8 <- peaks %>%
+  filter(chr == 8, pos > 50, pos < 60)
+pos_LD_light_pct <- peaks8 %>%
+  filter(lodcolumn == "LD_light_pct") %>%
+  select(pos)
+pos_HP_latency <- peaks8 %>%
+  filter(lodcolumn == "HP_latency") %>%
+  select(pos)
+```
+
+## Find peaks for two traits
+
+Make a supplementary table for manuscript.
+
+```{r supp_table}
+xtable::xtable(find_peaks(out[, c(10, 22)], pseudomap, threshold = 5) %>%
+  arrange(chr, pos) %>%
+   select(- lodindex))
+```
+
+
+
+## Correlation
+
+Given that the two traits "percent time in light" and "distance traveled in light" share a peak, we want to ask how correlated they are.
+
+```{r correlations}
+cor(wlph[ , 7], wlph[ , 10], use = "complete.obs")
+cor(wlph[ , 22], wlph[ , 10], use = "complete.obs")
+cor(wlph[ , 7], wlph[ , 22], use = "complete.obs")
+```
+
+
+
+
+## Plots
+
+```{r plot_profiles}
+library(qtl2pleio)
+colnames(recla$pheno)[c(10, 22)] <- c("percent time in light", "hot plate latency")
+p1022 <- tidy_scan_pvl(pvl1022, pmap = gm) %>%
+  add_intercepts(c(as.numeric(pos_LD_light_pct), as.numeric(pos_HP_latency))) %>%
+  plot_pvl(phenames = colnames(recla$pheno)[c(10, 22)]) + ggtitle("percent time in light and hot plate latency") +
+    broman::theme_karl()
+ggsave(filename = "profile.eps", plot = p1022)
+ggsave(filename =  "profile.svg", plot = p1022)
+```
+
+
+
+## Scatter plot of phenotypes
+
+```{r scatterplot_phenotypes}
+scatter1022 <- ggplot() + geom_point(data = wlph_tib, aes(y = HP_latency, x = LD_light_pct)) + labs(x = "percent time in light", y = "hot plate latency") + ggtitle("hot plate latency vs. percent time in light") + broman::theme_karl()
+ggsave(filename = "scatter.eps", plot = scatter1022)
+ggsave(filename = "scatter.svg", plot = scatter1022)
+```
+
+## Genome-wide LOD plots for the traits from Recla
+
+```{r plot_genomewide_trait10}
+setEPS()
+postscript("genomewide_lod_trait10.eps")
+plot(out, map = pseudomap, lodcolumn = 10, main = "percent time in light")
+dev.off()
+```
+
+```{r plot_genomewide_trait22}
+setEPS()
+postscript("genomewide_lod_trait22.eps")
+plot(out, map = pseudomap, lodcolumn = 22, main = "hot plate latency")
+dev.off()
+```
+
+```{r plot_genomewide_trait10_svg}
+#setEPS()
+#postscript("genomewide_lod_trait10.eps")
+#plot(out, map = pseudomap, lodcolumn = 10, main = "percent time in light")
+#dev.off()
+svg("genomewide_lod_trait10.svg")
+plot(out, map = pseudomap, lodcolumn = 10, main = "percent time in light")
+dev.off()
+
+```
+
+```{r plot_genomewide_trait22_svg}
+#setEPS()
+#postscript("genomewide_lod_trait22.eps")
+#plot(out, map = pseudomap, lodcolumn = 22, main = "hot plate latency")
+#dev.off()
+svg("genomewide_lod_trait22.svg")
+plot(out, map = pseudomap, lodcolumn = 22, main = "hot plate latency")
+dev.off()
+```
+
+```{r plot_genomewide_traits10_and_22_together}
+# genomewide lod plots for 10 & 22, pct time in light and hot plate latency
+setEPS()
+postscript("genomewide_lods_10-22.eps")
+ymx <- max(c(out[,10], out[,22]))
+par(mfrow = c(2, 1))
+plot(out, map = pseudomap, lodcolumn = 10, main = "percent time in light",
+     ylim=c(0, ymx*1.05), altcol="green4")
+plot(out, map = pseudomap, lodcolumn = 22, main = "hot plate latency",
+     ylim=c(0, ymx*1.05), altcol="green4")
+dev.off()
+
+```
+
+
+
+
+## LOD plots for both traits on Chromosome 8
+
+```{r plot_chr8_lods}
+# first, look at dimensions of `out`
+dim(out)
+cumsum_map_lengths <- sapply(FUN = length, X = pseudomap) %>%
+  cumsum()
+out[(cumsum_map_lengths[7] + 650):(cumsum_map_lengths[7] + 999), ] -> chr8_lods
+setEPS()
+postscript("chr8-lods.eps")
+par(mfrow = c(2, 1))
+plot_scan1(chr8_lods, chr = 8, map = pseudomap, lodcolumn = 10, main = "percent time in light", ylim = c(0, 6.5))
+plot_scan1(chr8_lods, chr = 8, map = pseudomap, lodcolumn = 22, main = "hot plate latency", ylim = c(0, 6.5))
+dev.off()
+```
+
+
+
+
+
+
+
+
+
+## Allele effects plots on chr 8 for Recla traits
+
+```{r plot_allele_effects}
+file10 <- "s1c_10.rds"
+if(file.exists(file10)) {
+    s1c_10 <- readRDS(file10)
+} else {
+    scan1coef(aprobs[ , 8], pheno = wlph[, 10], kinship = kinship$`8`,
+              reml = TRUE,
+              addcovar = sex2) -> s1c_10
+    saveRDS(s1c_10, file10) # percent time in light
+}
+
+file22 <- "s1c_22.rds"
+if(file.exists(file22)) {
+    s1c_22 <- readRDS(file22)
+} else {
+    scan1coef(aprobs[ , 8], pheno = wlph[, 22], kinship = kinship$`8`,
+              reml = TRUE,
+              addcovar = sex2) -> s1c_22
+    # save scan1coef output objects for fine-tuning of figures
+    saveRDS(s1c_22, file22) # hot plate latency
+}
+```
+
+
+
+
+```{r subset_scan1coef_results}
+# ensure that subsets are scan1output objects
+s1c_10s <- s1c_10[650:999, 1:8]
+s1c_22s <- s1c_22[650:999, 1:8]
+```
+
+
+```{r plot_scan1coef}
+setEPS()
+postscript("coefs.eps")
+par(mfrow = c(2, 1))
+plot_coefCC(s1c_10s, map = pseudomap, main = "percent time in light", legend = "topright")
+plot_coefCC(s1c_22s, map = pseudomap, main = "hot plate latency")
+dev.off()
+```
+
+```{r plot_scan1coef_svg}
+svg("coefs.svg")
+par(mfrow = c(2, 1))
+plot_coefCC(s1c_10s, map = pseudomap, main = "percent time in light", legend = "topright")
+plot_coefCC(s1c_22s, map = pseudomap, main = "hot plate latency")
+dev.off()
+```
+
+## Session info
+
+```{r session_info}
+devtools::session_info()
+```
