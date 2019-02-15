@@ -14,8 +14,6 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r load_results}
 library(dplyr)
 library(ggplot2)
-as_tibble(read.table("recla-07-10.txt")) -> pvl0710
-as_tibble(read.table("recla-07-22.txt")) -> pvl0722
 as_tibble(read.table("recla-10-22.txt")) -> pvl1022
 ```
 
