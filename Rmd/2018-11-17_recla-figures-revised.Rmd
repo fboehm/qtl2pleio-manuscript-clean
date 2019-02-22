@@ -194,6 +194,16 @@ plot(out, map = pseudomap, lodcolumn = 22, main = "hot plate latency",
      ylim=c(0, ymx*1.05), altcol="green4")
 dev.off()
 
+
+
+svg("genomewide_lods_10-22.svg")
+par(mfrow = c(2, 1))
+plot(out, map = pseudomap, lodcolumn = 10, main = "percent time in light",
+     ylim=c(0, ymx*1.05), altcol="green4")
+plot(out, map = pseudomap, lodcolumn = 22, main = "hot plate latency",
+     ylim=c(0, ymx*1.05), altcol="green4")
+dev.off()
+
 ```
 
 
