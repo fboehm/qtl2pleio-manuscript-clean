@@ -225,6 +225,13 @@ plot_scan1(chr8_lods, chr = 8, map = pseudomap, lodcolumn = 22, main = "hot plat
 dev.off()
 ```
 
+```{r svg-lods}
+svg("chr8-lods.svg")
+par(mfrow = c(2, 1))
+plot_scan1(chr8_lods, chr = 8, map = pseudomap, lodcolumn = 10, main = "percent time in light", ylim = c(0, 6.5))
+plot_scan1(chr8_lods, chr = 8, map = pseudomap, lodcolumn = 22, main = "hot plate latency", ylim = c(0, 6.5))
+dev.off()
+```
 
 
 
@@ -284,6 +291,30 @@ plot_coefCC(s1c_10s, map = pseudomap, main = "percent time in light", legend = "
 plot_coefCC(s1c_22s, map = pseudomap, main = "hot plate latency")
 dev.off()
 ```
+
+## Add a mean line to allele effects plots
+
+```{r}
+# calculate sample means
+mean(wlph[, 10], na.rm = TRUE) -> mean_pct_light
+mean(wlph[, 22], na.rm = TRUE) -> mean_hot_plate
+```
+
+```{r}
+setEPS()
+postscript("coefs-with-mean-lines.eps")
+par(mfrow = c(2, 1))
+plot_coefCC(s1c_10s, map = pseudomap, main = "percent time in light", legend = "topright")
+abline(h = mean_pct_light, col = "white", lty = 2)
+plot_coefCC(s1c_22s, map = pseudomap, main = "hot plate latency")
+abline(h = mean_hot_plate, col = "white", lty = 2)
+dev.off()
+
+```
+
+
+
+
 
 ## Session info
 
