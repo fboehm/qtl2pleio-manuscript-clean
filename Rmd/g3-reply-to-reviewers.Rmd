@@ -1,0 +1,36 @@
+---
+title: "Untitled"
+author: "Frederick Boehm"
+date: "4/4/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Dear :
+
+We thank you and the reviewers for your helpful comments to improve the manuscript. 
+
+We address below each of the issues that the reviewers raised.
+
+Sincerely,
+
+Frederick Boehm
+
+
+## Reviewer 1
+
+> 1. Please considering showing example plots of LOD profiles for simulation cases where separate QTL are detected; where evidence is not significant to declare separate QTL; and two other types when a single QTL was simulated. It would okay to just show the small allele effects difference and uneven allle partitioning. 
+
+We have incorporated additional profile LOD plots from the simulation studies into the supplementary materials.
+
+
+
+
+
+
+
+
+
