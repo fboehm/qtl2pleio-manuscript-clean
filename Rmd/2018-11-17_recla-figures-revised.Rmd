@@ -240,6 +240,7 @@ dev.off()
 
 
 
+
 ## Allele effects plots on chr 8 for Recla traits
 
 ```{r plot_allele_effects}
@@ -288,9 +289,33 @@ dev.off()
 svg("coefs.svg")
 par(mfrow = c(2, 1))
 plot_coefCC(s1c_10s, map = pseudomap, main = "percent time in light", legend = "topright")
+```
+
+
+```{r plot_scan1coef_svg}
 plot_coefCC(s1c_22s, map = pseudomap, main = "hot plate latency")
 dev.off()
 ```
+
+## Plot LOD & allele effects together in a single figure for each trait
+
+
+```{r}
+svg("percent-time-light-coef-lod-Chr8.svg", height = 7, width = 9)
+plot_coefCC(x = s1c_10s, map = pseudomap, main = "percent time in light", scan1_output = chr8_lods[, 10, drop = FALSE], top_panel_prop = 0.5, legend = "topright", ylim_lod = c(0, 7))
+dev.off()
+```
+
+```{r}
+svg("hot-plate-latency-coef-lod-Chr8.svg", height = 7, width = 9)
+plot_coefCC(x = s1c_22s, map = pseudomap, main = "hot plate latency", scan1_output = chr8_lods[, 22, drop = FALSE], top_panel_prop = 0.5, legend = "topright", ylim_lod = c(0, 7))
+dev.off()
+```
+
+
+
+
+
 
 ## Add a mean line to allele effects plots
 
