@@ -40,8 +40,7 @@ traits, to the case of more than two alleles.
 We also incorporate polygenic random effects to account for
 population structure. We use a parametric bootstrap to
 determine statistical significance. We apply our methods to a
-behavioral genetics data set from Diversity Outbred mice, where we
-find evidence for presence of two distinct loci in a 2.5~cM region.
+behavioral genetics data set from Diversity Outbred mice.
 Our methods have been incorporated into the R
 package \texttt{qtl2pleio}.
 
@@ -127,7 +126,7 @@ Our innovations include the accommodation of $k$ founder alleles per
 locus (compared to the traditional two founder alleles per locus) and
 the incorporation of multivariate polygenic random effects to account
 for relatedness. Furthermore, we implemented a parametric bootstrap
-test to assess statistical significance \citep{efron1979,tian2016dissection}.
+test to assess statistical significance \citep{efron1979,tian2016dissection}. We focus on the case that two traits are measured in the same set of subjects (Design I in the notation of of \citet{jiang1995multiple}).
 
 Below, we describe our likelihood ratio test for pleiotropy vs.\
 separate QTL. In simulation studies, we find that it is slightly
@@ -135,8 +134,6 @@ conservative, and that it has power to detect two separate loci when
 the univariate LOD peaks are strong. We further illustrate our
 approach with an application to data on a pair of behavior traits in
 a population of 261 DO mice \citep{logan2013high,recla2014precise}.
-We find modest evidence for distinct QTL in a 2.5-cM region on mouse
-Chromosome 8.
 
 
 \section{Methods}
@@ -289,7 +286,7 @@ H_A: \lambda_1 \neq \lambda_2
 \label{eqn:test-statistic}
 \end{equation}
 where $L$ is the likelihood for fixed QTL positions,
-maximized over all other parameters.
+maximized over all other parameters. The denominator concerns the likelihood for the null hypothesis of pleiotropy, where $\lambda = \lambda_1 = \lambda_2$.
 
 \subsection{Visualizing profile LOD traces}
 
@@ -538,11 +535,9 @@ CAST and NZO show low phenotypes and NOD and PWK are near the center.
 
 \begin{figure}
 \includegraphics[width = \textwidth]{../Rmd/coefs.eps}
-\caption{Chromosome 8 univariate LOD scores for percent time in light
-  and hot plate latency reveal broad, overlapping peaks between 53 cM
-  and 64 cM. The peak for percent time in light spans the region from
-  approximately 53 cM to 60 cM, with a maximum near 55 cM. The peak
-  for hot plate latency begins near 56 cM and ends about 64 cM.}
+\caption{Chromosome 8 founder allele effects for percent time in light
+  and hot plate latency demonstrate distinct allele patterns between 53cM
+  and 64 cM. 
 \label{fig:chr8-effects}
 \end{figure}
 
@@ -569,9 +564,7 @@ The pleiotropy trace (in gray) peaks near 55 cM.
 
 The likelihood ratio test statistic for the test of pleiotropy was
 1.2. Based on a parametric bootstrap with 1,000 bootstrap replicates,
-the estimated p-value was 0.11, indicating weak
-evidence for distinct QTL for the two traits.
-
+the estimated p-value was 0.11. Thus, by our approach, the evidence for the two traits having distinct QTL is weak. 
 
 
 
@@ -585,18 +578,19 @@ evidence for distinct QTL for the two traits.
 We developed a test of pleiotropy vs.\ separate QTL for multiparental
 populations, extending the work of \citet{jiang1995multiple} for
 multiple alleles and with a linear mixed model to account for
-population structure \citep{kang2010variance, yang2014advantages}. Our simulation
-studies indicate that the test has power to detect presence of
+population structure \citep{kang2010variance, yang2014advantages}. 
+Our simulation studies indicate that our test is slightly conservative, with type I error rates below their nominal values (Table~\ref{table-typeI}).
+Power is affected by many factors (including sample size, effect size, and allele frequencies). We studied the effects of interlocus distance and QTL effect on power, and we showed that our test has power to detect presence of
 separate loci, especially when univariate trait associations are
 strong (Figure~\ref{fig:power}). Type I error rates indicate that our
 test is slightly conservative (Table~\ref{table-typeI}).
 
 In the application of our method to two behavioral phenotypes in a
 study of 261 Diversity Outbred mice
-\citep{recla2014precise,logan2013high}, we obtained weak evidence
-(p=0.11) for the presence of two distinct QTL, with one QTL (which
-contained the \textit{Hydin} gene) affecting only ``hot plate latency'' and a
-second QTL affecting ``percent time in light'' (Figure~\ref{fig:profiles}).
+\citep{recla2014precise,logan2013high}, the evidence
+for the presence of two distinct QTL, with one QTL (which
+contains the \textit{Hydin} gene) affecting only ``hot plate latency'' and a
+second QTL affecting ``percent time in light'' was weak (p = 0.11, Figure~\ref{fig:profiles}).
 
 Founder allele effects plots provide further evidence for the presence
 of two distinct loci. As \citet{macdonald2007joint} and
