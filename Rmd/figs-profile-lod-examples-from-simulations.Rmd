@@ -1,0 +1,129 @@
+---
+title: "Example profile LOD plots from simulations"
+author: "Frederick Boehm"
+date: "4/24/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(qtl2pleio)
+```
+
+A reviewer asked us to provide example profile LOD plots for the simulated traits with F:ABCDEGH allele parititioning and small effect size (as in Figure 1, the power figure).
+
+
+
+
+```{r setup}
+load("~/Box Sync/attie/attiedo/DerivedData/probs_pmap.RData")
+pm <- pmap$`17`
+load("~/Box Sync/attie/attiedo/DerivedData/probs_gmap.RData")
+gm <- gmap$`17`
+```
+
+
+We want to use run 319, for it has interlocus distance of 0.5 cM and small effect size (per the research notebook entry of Jan 4, 2018).
+
+
+
+
+
+
+
+
+
+
+
+```{r read-results}
+tr0 <- read.table("~/Box Sync/attie/qtl2pleio-manuscript-chtc/power-study/results/pvl400-run319/pvl400-run319_0.txt")
+colnames(tr0) %in% names(gm)
+```
+
+
+
+
+```{r}  
+tidyr::gather(tr0) %>%
+  rename(Var2 = key, loglik = value) %>%
+  mutate(Var1 = rep(unique(Var2), times = 210)) %>%
+  select(3, 1, 2) %>%
+  tidy_scan_pvl(pmap = gm) %>%
+  plot_pvl(units = "cM")
+```
+
+```{r}
+tr <- list()
+for (i in 0:399){
+  fn <- paste0("~/Box Sync/attie/qtl2pleio-manuscript-chtc/power-study/results/pvl400-run319/pvl400-run319_", i, ".txt")
+  tr[[i+1]] <- read.table(fn)
+}
+
+```
+
+
+```{r}
+for (i in 0:399){
+  fn <- paste0("~/Box Sync/attie/qtl2pleio-manuscript-chtc/power-study/results/pvl400-run319-profile-lod-plots/profile-lod", i, ".eps")
+  tr0 <- tr[[i+1]]
+  tidyr::gather(tr0) %>%
+    rename(Var2 = key, loglik = value) %>%
+    mutate(Var1 = rep(unique(Var2), times = 210)) %>%
+    select(3, 1, 2) %>%
+    tidy_scan_pvl(pmap = gm) %>%
+    plot_pvl(units = "cM")
+  ggsave(fn)
+}
+```
+
+
+We also need to determine, from the bootstrap samples, the critical value for the test statistic.
+
+```{r}
+# bootstrap samples are run 309 for small effect size and uneven partitioning
+boot <- list()
+for (i in 0:15999){
+  fn <- paste0("~/Box Sync/attie/qtl2pleio-manuscript-chtc/power-study/results/boot400-run309/boot400-run309_", i, ".txt")
+  boot[[i+1]] <- read.table(fn)
+
+}
+boots <- do.call("c", boot) %>% unlist()
+names(boots) <- NULL
+quantile(boots, 0.95)
+```
+
+Now, let's get the lrts for each of the 400 analyses.
+
+```{r}
+lrt <- numeric(length = 400)
+for (i in 0:399){
+  fn <- paste0("~/Box Sync/attie/qtl2pleio-manuscript-chtc/power-study/results/pvl400-run319/pvl400-run319_", i, ".txt")
+  lrt[i + 1] <- read.table(fn) %>%
+    tidyr::gather() %>%
+    rename(Var2 = key, loglik = value) %>%
+    mutate(Var1 = rep(unique(Var2), times = 210)) %>%
+    select(3, 1, 2) %>%
+    calc_lrt_tib()
+}
+sum(lrt > quantile(boots, 0.95))
+```
+
+Now, let's analyze the lrt vector by using each trait's 400 samples, rather than pooling all 160,000.
+
+```{r}
+crit <- numeric(400)
+for (i in 0:399){
+  start_index <- i * 400
+  end_index <- (i + 1) * 400 - 1 
+  crit[i + 1] <- quantile(boots[start_index:end_index], 0.95)
+}
+```
+
+```{r}
+tib <- tibble(lrt, crit) %>%
+  mutate(indicator = lrt > crit)
+sum(tib$indicator)
+```
+
+
