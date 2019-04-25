@@ -72,8 +72,8 @@ for (i in 0:399){
     mutate(Var1 = rep(unique(Var2), times = 210)) %>%
     select(3, 1, 2) %>%
     tidy_scan_pvl(pmap = gm) %>%
-    plot_pvl(units = "cM")
-  ggsave(fn)
+    plot_pvl(units = "cM", linetype = rep("solid", 3))
+  ggsave(fn, width = 7, height = 3.5, units = "in")
 }
 ```
 
@@ -107,6 +107,18 @@ for (i in 0:399){
     calc_lrt_tib()
 }
 sum(lrt > quantile(boots, 0.95))
+calc_lrt_matrix <- function(matrix){
+  max(matrix) - max(diag(matrix))
+}
+lrt2 <- numeric(400)
+for (i in 0:399){
+  fn <- paste0("~/Box Sync/attie/qtl2pleio-manuscript-chtc/power-study/results/pvl400-run319/pvl400-run319_", i, ".txt")
+  lrt2[i+1] <- read.table(fn) %>%
+    as.matrix() %>%
+    calc_lrt_matrix()
+}
+
+lrt == lrt2
 ```
 
 Now, let's analyze the lrt vector by using each trait's 400 samples, rather than pooling all 160,000.
@@ -126,4 +138,25 @@ tib <- tibble(lrt, crit) %>%
 sum(tib$indicator)
 ```
 
+## Choosing 9 random profile lod plots and calculating their test statistics
+
+We chose randomly nine profile lod plots for inclusion in the G3 manuscript.
+
+```{r}
+set.seed(8675309)
+(sample(0:399, 9) -> plot_nums)
+```
+
+
+
+```{r}
+tibble(plot_nums, lrt = lrt2[plot_nums + 1]) %>%
+  arrange(lrt) %>%
+  mutate(lrt10 = lrt / log(10))
+```
+
+```{r}
+quantile(boots, 0.95) / log(10)
+
+```
 

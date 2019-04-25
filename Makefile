@@ -11,7 +11,7 @@ DOCNAME = overleaf-repo/main
 all: doc
 doc: pdf
 pdf: overleaf-repo/main.pdf
-fig: R/power-curves.eps Rmd/scatter.eps Rmd/chr8-lods.eps Rmd/coefs.eps Rmd/profile.eps Rmd/genomewide_lod_trait10.eps Rmd/genomewide_lod_trait22.eps
+fig: R/power-curves.eps Rmd/scatter.eps Rmd/chr8-lods.eps Rmd/coefs.eps Rmd/profile.eps Rmd/genomewide_lod_trait10.eps Rmd/genomewide_lod_trait22.eps overleaf-repo/figs/profile-lod305.eps overleaf-repo/figs/profile-lod63.eps overleaf-repo/figs/profile-lod106.eps overleaf-repo/figs/profile-lod304.eps overleaf-repo/figs/profile-lod190.eps overleaf-repo/figs/profile-lod265.eps overleaf-repo/figs/profile-lod332.eps overleaf-repo/figs/profile-lod385.eps overleaf-repo/figs/profile-lod335.eps
 
 
 # Rules

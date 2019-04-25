@@ -128,7 +128,7 @@ cor(wlph[ , 7], wlph[ , 22], use = "complete.obs")
 library(qtl2pleio)
 colnames(recla$pheno)[c(10, 22)] <- c("percent time in light", "hot plate latency")
 p1022 <- tidy_scan_pvl(pvl1022, pmap = gm, phenames = colnames(recla$pheno)[c(10, 22)]) %>%
-  plot_pvl(units = "cM") + ggtitle("percent time in light and hot plate latency") +
+  plot_pvl(units = "cM", linetype = rep("solid", 3)) +
     broman::theme_karl()
 ggsave(filename = "profile.eps", plot = p1022)
 ggsave(filename =  "profile.svg", plot = p1022)
