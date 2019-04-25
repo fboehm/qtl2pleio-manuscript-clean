@@ -127,9 +127,8 @@ cor(wlph[ , 7], wlph[ , 22], use = "complete.obs")
 ```{r plot_profiles}
 library(qtl2pleio)
 colnames(recla$pheno)[c(10, 22)] <- c("percent time in light", "hot plate latency")
-p1022 <- tidy_scan_pvl(pvl1022, pmap = gm) %>%
-  add_intercepts(c(as.numeric(pos_LD_light_pct), as.numeric(pos_HP_latency))) %>%
-  plot_pvl(phenames = colnames(recla$pheno)[c(10, 22)]) + ggtitle("percent time in light and hot plate latency") +
+p1022 <- tidy_scan_pvl(pvl1022, pmap = gm, phenames = colnames(recla$pheno)[c(10, 22)]) %>%
+  plot_pvl(units = "cM") + ggtitle("percent time in light and hot plate latency") +
     broman::theme_karl()
 ggsave(filename = "profile.eps", plot = p1022)
 ggsave(filename =  "profile.svg", plot = p1022)
@@ -270,9 +269,12 @@ if(file.exists(file22)) {
 
 
 ```{r subset_scan1coef_results}
-# ensure that subsets are scan1output objects
 s1c_10s <- s1c_10[650:999, 1:8]
 s1c_22s <- s1c_22[650:999, 1:8]
+# compute (unweighted) mean of 8 founder allele effects at each position
+s1c_10sm <- s1c_10s - apply(X = s1c_10s, FUN = mean, MARGIN = 1)
+s1c_22sm <- s1c_22s - apply(X = s1c_22s, FUN = mean, MARGIN = 1)
+
 ```
 
 
@@ -280,20 +282,16 @@ s1c_22s <- s1c_22[650:999, 1:8]
 setEPS()
 postscript("coefs.eps")
 par(mfrow = c(2, 1))
-plot_coefCC(s1c_10s, map = pseudomap, main = "percent time in light", legend = "topright")
-plot_coefCC(s1c_22s, map = pseudomap, main = "hot plate latency")
+plot_coefCC(s1c_10sm, map = pseudomap, main = "percent time in light", legend = "topright", xlab = "Chromosome 8 position (cM)")
+plot_coefCC(s1c_22sm, map = pseudomap, main = "hot plate latency", xlab = "Chromosome 8 position (cM)")
 dev.off()
 ```
 
 ```{r plot_scan1coef_svg}
 svg("coefs.svg")
 par(mfrow = c(2, 1))
-plot_coefCC(s1c_10s, map = pseudomap, main = "percent time in light", legend = "topright")
-```
-
-
-```{r plot_scan1coef_svg}
-plot_coefCC(s1c_22s, map = pseudomap, main = "hot plate latency")
+plot_coefCC(s1c_10s, map = pseudomap, main = "percent time in light", legend = "topright", xlab = "Chromosome 8 position (cM)")
+plot_coefCC(s1c_22s, map = pseudomap, main = "hot plate latency", xlab = "Chromosome 8 position (cM)")
 dev.off()
 ```
 
