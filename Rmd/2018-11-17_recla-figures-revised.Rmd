@@ -219,16 +219,16 @@ out[(cumsum_map_lengths[7] + 650):(cumsum_map_lengths[7] + 999), ] -> chr8_lods
 setEPS()
 postscript("chr8-lods.eps")
 par(mfrow = c(2, 1))
-plot_scan1(chr8_lods, chr = 8, map = pseudomap, lodcolumn = 10, main = "percent time in light", ylim = c(0, 6.5))
-plot_scan1(chr8_lods, chr = 8, map = pseudomap, lodcolumn = 22, main = "hot plate latency", ylim = c(0, 6.5))
+plot_scan1(chr8_lods, chr = 8, map = pseudomap, lodcolumn = 10, main = "percent time in light", ylim = c(0, 6.5), xlab = "Chromosome 8 position (cM)")
+plot_scan1(chr8_lods, chr = 8, map = pseudomap, lodcolumn = 22, main = "hot plate latency", ylim = c(0, 6.5), xlab = "Chromosome 8 position (cM)")
 dev.off()
 ```
 
 ```{r svg-lods}
 svg("chr8-lods.svg")
 par(mfrow = c(2, 1))
-plot_scan1(chr8_lods, chr = 8, map = pseudomap, lodcolumn = 10, main = "percent time in light", ylim = c(0, 6.5))
-plot_scan1(chr8_lods, chr = 8, map = pseudomap, lodcolumn = 22, main = "hot plate latency", ylim = c(0, 6.5))
+plot_scan1(chr8_lods, chr = 8, map = pseudomap, lodcolumn = 10, main = "percent time in light", ylim = c(0, 6.5), xlab = "Chromosome 8 position (cM)")
+plot_scan1(chr8_lods, chr = 8, map = pseudomap, lodcolumn = 22, main = "hot plate latency", ylim = c(0, 6.5), xlab = "Chromosome 8 position (cM)")
 dev.off()
 ```
 
@@ -274,8 +274,9 @@ s1c_22s <- s1c_22[650:999, 1:8]
 # compute (unweighted) mean of 8 founder allele effects at each position
 s1c_10sm <- s1c_10s - apply(X = s1c_10s, FUN = mean, MARGIN = 1)
 s1c_22sm <- s1c_22s - apply(X = s1c_22s, FUN = mean, MARGIN = 1)
-
 ```
+
+
 
 
 ```{r plot_scan1coef}

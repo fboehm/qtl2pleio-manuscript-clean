@@ -3,6 +3,7 @@
 \usepackage{tabularx}
 \usepackage{longtable}
 \articletype{mp} % article type
+\usepackage{subcaption}
 
 \hypersetup{pdfpagemode=UseNone} % don't show bookmarks on initial view
 
@@ -787,8 +788,41 @@ percent time in light & 8 & 55.28 & 5.27 \\
 \label{fig:genomewide10-22}
 \end{figure}
 
+\clearpage
 
+\begin{figure}
+    \begin{subfigure}{.5\textwidth}
+        \includegraphics[width=\linewidth]{figs/profile-lod99.eps}
+    \end{subfigure} %
+    \begin{subfigure}{.5\textwidth}
+        \includegraphics[width=\linewidth]{figs/profile-lod98.eps}
+    \end{subfigure} %
+\begin{subfigure}{.5\textwidth}
+        \includegraphics[width=\linewidth]{figs/profile-lod105.eps}
+    \end{subfigure} %
+    \begin{subfigure}{.5\textwidth}
+        \includegraphics[width=\linewidth]{figs/profile-lod106.eps}
+    \end{subfigure} %
+\caption{Example profile LOD plots for trait pairs simulated with interlocus distance equal to 0.5 cM, effect size 1, and allele partitioning F:ABCDEGH. All four of these analyses yielded test statistics consistent with pleiotropy.}
+\end{figure}
 
+\clearpage
+
+\begin{figure}
+    \begin{subfigure}{.5\textwidth}
+        \includegraphics[width=\linewidth]{figs/profile-lod90.eps}
+    \end{subfigure} %
+    \begin{subfigure}{.5\textwidth}
+        \includegraphics[width=\linewidth]{figs/profile-lod240.eps}
+    \end{subfigure} %
+\begin{subfigure}{.5\textwidth}
+        \includegraphics[width=\linewidth]{figs/profile-lod277.eps}
+    \end{subfigure} %
+    \begin{subfigure}{.5\textwidth}
+        \includegraphics[width=\linewidth]{figs/profile-lod298.eps}
+    \end{subfigure} %
+\caption{Example profile LOD plots for trait pairs simulated with interlocus distance equal to 0.5 cM, effect size 1, and allele partitioning F:ABCDEGH. All four of these analyses yielded test statistics consistent with separate QTL.}
+\end{figure}
 
 
 
