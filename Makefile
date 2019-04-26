@@ -44,3 +44,9 @@ diff:
 	mv latexdiff/diff.tex overleaf-repo
 	cd overleaf-repo;$(LATEXMK) -pdfps -bibtex diff.tex
 	mv overleaf-repo/diff* latexdiff/
+
+diff2: 
+	latexdiff ../qtl2pleio-manuscript/overleaf-repo/main.tex overleaf-repo/main.tex > latexdiff/diff-submitted-v-current.tex
+	mv latexdiff/diff-submitted-v-current.tex overleaf-repo
+	cd overleaf-repo;$(LATEXMK) -pdfps -bibtex diff-submitted-v-current.tex
+	mv overleaf-repo/diff* latexdiff/
